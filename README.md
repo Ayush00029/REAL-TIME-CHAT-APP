@@ -93,10 +93,10 @@ Ensure you have Node.js (v16 or higher) and npm installed.
    ```bash
    cd backend
    ```
-2. The environment configuration is set up in the `.env` file:
+2. Create a `.env` file in the backend directory and set up your configurations:
    ```env
-   MONGO_URI=mongodb+srv://yt:c64oA0ILZXYbtCS1@backend.zcc0sc8.mongodb.net/chatapp
-   JWT_SECRET=ac05a327e57bcf05c5075c3ef660c49d2823757283545596f9c352c25596ec8b
+   MONGO_URI=your_mongodb_atlas_connection_string
+   JWT_SECRET=your_jwt_signing_secret
    PORT=5000
    ```
 3. Install dependencies:
