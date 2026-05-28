@@ -93,17 +93,11 @@ Ensure you have Node.js (v16 or higher) and npm installed.
    ```bash
    cd backend
    ```
-2. Create a `.env` file in the backend directory and set up your configurations:
-   ```env
-   MONGO_URI=your_mongodb_atlas_connection_string
-   JWT_SECRET=your_jwt_signing_secret
-   PORT=5000
-   ```
-3. Install dependencies:
+2. Install dependencies:
    ```bash
    npm install
    ```
-4. Start the backend server:
+3. Start the backend server:
    ```bash
    npm run dev
    ```
