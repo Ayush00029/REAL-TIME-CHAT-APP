@@ -103,6 +103,21 @@ export const ChatProvider = ({ children }) => {
     });
   };
 
+  // Clear chat history
+  const clearChat = async (userId) => {
+    try {
+      const res = await API.delete(`/messages/clear/${userId}`);
+      if (res.data.success) {
+        setMessages([]);
+        return { success: true };
+      }
+      return { success: false };
+    } catch (error) {
+      console.error('Error clearing chat:', error);
+      return { success: false };
+    }
+  };
+
   // Socket event listeners for real-time interactions
   useEffect(() => {
     if (!socket) return;
@@ -130,10 +145,19 @@ export const ChatProvider = ({ children }) => {
       setTypingUsers((prev) => ({ ...prev, [senderId]: false }));
     });
 
+    // Listen for chat cleared events
+    socket.on('chatCleared', ({ clearedBy }) => {
+      const currentSelected = selectedUserRef.current;
+      if (currentSelected && currentSelected._id === clearedBy) {
+        setMessages([]);
+      }
+    });
+
     return () => {
       socket.off('newMessage');
       socket.off('userTyping');
       socket.off('userStoppedTyping');
+      socket.off('chatCleared');
     };
   }, [socket]);
 
@@ -152,6 +176,7 @@ export const ChatProvider = ({ children }) => {
         getMessages,
         sendMessage,
         sendTypingStatus,
+        clearChat,
       }}
     >
       {children}

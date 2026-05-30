@@ -17,6 +17,7 @@ import {
   UserPlus,
   Copy,
   Check,
+  Trash2,
 } from 'lucide-react';
 
 // Helper to get the correct avatar source URL (with initials SVG fallback for iran.liara.run links)
@@ -56,6 +57,7 @@ const Dashboard = () => {
     getMessages,
     sendMessage,
     sendTypingStatus,
+    clearChat,
   } = useChat();
 
   const [messageText, setMessageText] = useState('');
@@ -66,6 +68,8 @@ const Dashboard = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [customAvatarUrl, setCustomAvatarUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   // Sync avatar selection with authenticated user
   useEffect(() => {
@@ -388,6 +392,17 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
+
+                {/* Chat Header Actions */}
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowClearConfirmModal(true)}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-red-500 dark:hover:bg-slate-800/80 focus:outline-none"
+                    title="Clear Chat History"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Message History Grid */}
@@ -690,6 +705,57 @@ const Dashboard = () => {
                   <span>Email</span>
                 </a>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Chat Confirmation Modal */}
+      {showClearConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="max-w-sm w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 relative glass">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowClearConfirmModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex flex-col items-center mb-6 text-center">
+              <div className="w-12 h-12 bg-red-50 dark:bg-red-950/20 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                <Trash2 className="w-6 h-6 text-red-500 animate-pulse-slow" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Clear Chat History?</h2>
+              <p className="text-xs text-slate-450 dark:text-slate-400 mt-1.5 leading-relaxed">
+                Are you sure you want to clear your chat history with <span className="font-semibold text-slate-700 dark:text-slate-200">{selectedUser?.username}</span>? This action cannot be undone.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowClearConfirmModal(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-medium rounded-xl text-xs transition-colors focus:outline-none"
+                disabled={isClearing}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsClearing(true);
+                  await clearChat(selectedUser._id);
+                  setIsClearing(false);
+                  setShowClearConfirmModal(false);
+                }}
+                className="flex-1 py-2.5 bg-red-650 hover:bg-red-700 active:bg-red-800 text-white font-medium rounded-xl text-xs transition-all duration-200 flex items-center justify-center space-x-1.5 disabled:opacity-50 focus:outline-none"
+                disabled={isClearing}
+              >
+                {isClearing ? 'Clearing...' : 'Clear Chat'}
+              </button>
             </div>
           </div>
         </div>

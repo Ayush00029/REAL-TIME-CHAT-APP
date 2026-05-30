@@ -59,3 +59,33 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
+
+/**
+ * Clear chat history between the logged-in user and another user
+ */
+export const clearChat = async (req, res) => {
+  try {
+    const { id: userToChatId } = req.params;
+    const senderId = req.user._id;
+
+    // Delete all messages between the two users
+    await Message.deleteMany({
+      $or: [
+        { senderId: senderId, receiverId: userToChatId },
+        { senderId: userToChatId, receiverId: senderId },
+      ],
+    });
+
+    // Notify the other user via Socket.io if they are online
+    const receiverSocketId = getReceiverSocketId(userToChatId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('chatCleared', { clearedBy: senderId });
+    }
+
+    res.status(200).json({ success: true, message: 'Chat history cleared successfully' });
+  } catch (error) {
+    console.error('Error in clearChat controller:', error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
